@@ -44,8 +44,14 @@ func main() {
 	// Create Windows native injector
 	injector := input.NewInjector()
 
+	state := engine.NewConnectionState()
+
+	tcpServer := engine.NewTCPServer(":50506", state, injector)
+	if err := tcpServer.Start(); err != nil {
+		log.Fatal("Failed to start TCP server:", err)
+	}
 	// Create and run engine
-	glideEngine := engine.NewEngine(listener, injector)
+	glideEngine := engine.NewEngine(listener, injector, state)
 	if err := glideEngine.Run(ctx); err != nil {
 		log.Fatal("Engine stopped with error:", err)
 	}

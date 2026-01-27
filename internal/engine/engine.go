@@ -12,13 +12,15 @@ import (
 type Engine struct {
 	listener *UDPListener
 	injector input.Injector
+	state    *ConnectionState
 }
 
 // NewEngine creates a new Engine instance.
-func NewEngine(listener *UDPListener, injector input.Injector) *Engine {
+func NewEngine(listener *UDPListener, injector input.Injector, state *ConnectionState) *Engine {
 	return &Engine{
 		listener: listener,
 		injector: injector,
+		state:    state,
 	}
 }
 
@@ -45,6 +47,11 @@ func (e *Engine) Run(ctx context.Context) error {
 
 			move, ok := protocol.ParseMouseMovePacket(packet)
 			if !ok {
+				continue
+			}
+
+			// Ignore UDP packets if TCP is not connected or heartbeat expired
+			if !e.state.IsConnected() {
 				continue
 			}
 
