@@ -7,6 +7,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/Jaysinh001/Glide-Go/internal/discovery"
 	"github.com/Jaysinh001/Glide-Go/internal/engine"
 	"github.com/Jaysinh001/Glide-Go/internal/input"
 )
@@ -17,6 +18,12 @@ func main() {
 	// Root context for graceful shutdown
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
+
+	// Start mDNS broadcaster (Phase 1.1)
+	_, err := discovery.StartMDNS(ctx, 50506, 50505)
+	if err != nil {
+		log.Println("mDNS failed to start:", err)
+	}
 
 	// Handle Ctrl+C / SIGTERM
 	sigCh := make(chan os.Signal, 1)
